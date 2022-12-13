@@ -1,0 +1,10 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://root:root@localhost:27017/?authSource=admin
+      database: practice # 기본 진입 시 제공되는 DB
+      authentication-database: admin # 너의 유저 정보 저장된 데이터베이스
+
+mongodb:
+  test:
+    connectionString: "mongodb://admin:password@localhost:27017/baeldung"
