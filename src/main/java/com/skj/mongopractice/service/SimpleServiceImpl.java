@@ -3,8 +3,8 @@ package com.skj.mongopractice.service;
 import com.skj.mongopractice.domain.Simple;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -47,5 +47,16 @@ public class SimpleServiceImpl {
         Query query = new Query();
         query.addCriteria(Criteria.where("date").lt(localDate));
         return mongoTemplate.find(query,Simple.class);
+    }
+
+    public List<Simple> findByDateMoreThan(LocalDate localDate) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("date").gt(localDate)).with(Sort.by(Sort.Direction.DESC,"date"));
+        return mongoTemplate.find(query,Simple.class);
+    }
+
+    public int getToalCount() {
+        Query query = new Query();
+        return (int)mongoTemplate.count(query,Simple.class);
     }
 }

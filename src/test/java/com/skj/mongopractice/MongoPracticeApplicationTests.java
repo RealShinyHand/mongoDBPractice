@@ -19,6 +19,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.test.context.event.annotation.BeforeTestMethod;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -46,6 +47,7 @@ class MongoPracticeApplicationTests {
 	MongoTemplate mongoTemplate;
 
 	@Test
+	@Order(1)
 	void contextLoads() {
 		Assertions.assertNotNull(mongoClient);
 		Assertions.assertNotNull(mongoTemplate);
@@ -60,6 +62,7 @@ class MongoPracticeApplicationTests {
 	}
 
 	@Test
+	@Order(2)
 	void initalDBrecord(){
 		simpleService.deleteAll();
 		for(int i = 1 ; i <= RECORD_COUNT ; i++ ){
@@ -83,7 +86,7 @@ class MongoPracticeApplicationTests {
 	}
 
 	@Test
-	@DisplayName("2.[SELECT-기초] title이 일치하는 Simple 한건 조회 : 성공 시나리오")
+	@DisplayName("2-1.[SELECT-기초] title이 일치하는 Simple 한건 조회 : 성공 시나리오")
 	void givenTitleWhenFindByTitleThenSuccess(){
 		log.info("[SELECT-기초] title이 일치하는 Simple 한건 조회");
 		//given
@@ -97,7 +100,7 @@ class MongoPracticeApplicationTests {
 	}
 
 	@Test
-	@DisplayName("3.[SELECT-기초] title이 일치하는 Simple 한건 조회 : 실패 시나리오")
+	@DisplayName("2-2.[SELECT-기초] title이 일치하는 Simple 한건 조회 : 실패 시나리오")
 	void givenNotExistTitleWhenFindByTitleThenReturnNull(){
 		log.info("[SELECT-기초] title이 일치하는 Simple 한건 조회 : 실패 시나리오");
 		//given
@@ -110,7 +113,7 @@ class MongoPracticeApplicationTests {
 	}
 
 	@Test
-	@DisplayName("4.[SELECT-기초] 주어진 title 포함된  도큐머트 반환")
+	@DisplayName("3.[SELECT-기초] 주어진 title 포함된  도큐머트 반환")
 	void givenTitleWhenFindByLikeTitleThenSuccess(){
 		log.info("[SELECT-기초] 주어진 title 포함된  도큐머트 반환");
 		//given
@@ -130,12 +133,29 @@ class MongoPracticeApplicationTests {
 
 
 	@Test
-	@DisplayName("5.[SELECT-기초] 주어진 date 보다 큰 도큐먼트만 반환 & date 내림차순 정렬")
+	@DisplayName("4.[SELECT-기초] 주어진 date 보다 큰 도큐먼트만 반환 & date 내림차순 정렬")
 	void givenWhenFindWhereDateGtOrderByDateDescThenSuccess(){
+		//given
+		LocalDate date = LocalDate.of(2000,1,1);
+		//when
+		List<Simple> simpleList = simpleService.findByDateMoreThan(date);
 
-
+		//then
+		Assertions.assertEquals(99,simpleList.size());
+		for(int i = 0 ; i < simpleList.size() -1;i++){
+			boolean result = simpleList.get(i).getDate().isAfter(simpleList.get(i+1).getDate());
+			Assertions.assertEquals(true,result);
+		}
 	}
 
+
+	@Test
+	@DisplayName("5.전체 갯수 조회")
+	void givenWhenGetCountThenSuccess(){
+		int count = simpleService.getToalCount();
+
+		Assertions.assertEquals(RECORD_COUNT,count);
+	}
 
 
 
