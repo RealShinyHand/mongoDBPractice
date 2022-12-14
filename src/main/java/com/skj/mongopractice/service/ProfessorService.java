@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface ProfessorService {
     List<ProfessorDto> findAll();
+
 }
