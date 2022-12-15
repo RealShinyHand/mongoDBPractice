@@ -8,3 +8,12 @@ spring:
 mongodb:
   test:
     connectionString: "mongodb://admin:password@localhost:27017/baeldung"
+
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          mongodb:
+            core:
+              MongoTemplate: DEBUG

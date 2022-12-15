@@ -21,8 +21,11 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.test.context.event.annotation.BeforeTestMethod;
 
+import java.sql.Time;
 import java.time.LocalDate;
-import java.util.List;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -65,8 +68,9 @@ class MongoPracticeApplicationTests {
 	@Order(2)
 	void initalDBrecord(){
 		simpleService.deleteAll();
+		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 		for(int i = 1 ; i <= RECORD_COUNT ; i++ ){
-			simpleService.insertOne(Simple.builder().title(String.valueOf(i)).body(i+"body").date(LocalDate.parse("2000-01-01").plusMonths(i-1)).build());
+			simpleService.insertOne(Simple.builder().title(String.valueOf(i)).body(i+"body").date(LocalDate.parse("2000-01-01", DateTimeFormatter.ofPattern("yyyy-MM-dd")).plusMonths(i-1)).build());
 		}
 
 	}
@@ -157,7 +161,48 @@ class MongoPracticeApplicationTests {
 		Assertions.assertEquals(RECORD_COUNT,count);
 	}
 
+	@Test
+	@DisplayName("6. 전체 타이틀 조회 (단, title,_id을 조회하시오..)")
+	void givenWhenGetTitlesThenReturnTitles(){
+		List<Simple> simpleList = simpleService.getTitles();
 
+		for(Simple e : simpleList){
+			Assertions.assertNull(e.getDate());
+			//Assertions.assertNull(e.getId()); ??_id 필드는 include에 포함하지 않았는데...
+			Assertions.assertNull(e.getBody());
+			Assertions.assertNotNull(e.getTitle());
+		}
+
+	}
+
+	@Test
+	@DisplayName("7. date가 가장 큰 top 3개만 조회")
+	void givenWhenfindLimitTop3ThenReturn3Record(){
+		List<Simple> simpleList = simpleService.findTop3();
+		Assertions.assertEquals(3,simpleList.size());
+
+		Assertions.assertEquals(simpleList.get(0).getDate(),LocalDate.of(2008,4,1));
+		Assertions.assertEquals(simpleList.get(1).getDate(),LocalDate.of(2008,3,1));
+		Assertions.assertEquals(simpleList.get(2).getDate(),LocalDate.of(2008,2,1));
+	}
+	
+	@Test
+	@DisplayName("8.페이징 처리, 페이지당 아이템 갯수 = 10개로 하여, 1~n 까지 페이징 처리하라,정렬은 날짜 내림차순 ")
+	void givenPagingIndex_whenFindWithPaging_thenReturnList(){
+
+		List<Simple> simpleList;
+		Assertions.assertThrows(IllegalArgumentException.class,() -> simpleService.findWithPaging(-1));
+		for(int i = 0 ; i < 10;i++){
+			simpleList = simpleService.findWithPaging(i);
+			Assertions.assertEquals(10,simpleList.size());
+		}
+		simpleList = simpleService.findWithPaging(0);
+		Assertions.assertEquals(true,simpleList.get(0).getDate().isAfter(simpleList.get(1).getDate()));
+		Assertions.assertEquals(true,
+				simpleList.get(simpleList.size()-1)
+						.getDate().isAfter(simpleService.findWithPaging(1).get(0).getDate()));
+		Assertions.assertEquals(simpleService.findWithPaging(10).size(),0);
+	}
 
 
 }

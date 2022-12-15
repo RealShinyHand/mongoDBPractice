@@ -3,6 +3,8 @@ package com.skj.mongopractice.service;
 import com.skj.mongopractice.domain.Simple;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -58,5 +60,28 @@ public class SimpleServiceImpl {
     public int getToalCount() {
         Query query = new Query();
         return (int)mongoTemplate.count(query,Simple.class);
+    }
+
+    public List<Simple> getTitles() {
+        Query query = new Query();
+        query.fields().include("title");
+        return mongoTemplate.find(query,Simple.class);
+    }
+
+    public List<Simple> findTop3() {
+        Query query =new Query();
+        query.limit(3).with(Sort.by(Sort.Direction.DESC,"date"));
+        return mongoTemplate.find(query,Simple.class);
+    }
+
+    public List<Simple> findWithPaging(int index) {
+
+        Pageable pageable = PageRequest.of(index,10,Sort.by(Sort.Direction.DESC,"date"));
+
+        Query query = new Query();
+
+        query.with(pageable);
+
+        return mongoTemplate.find(query,Simple.class);
     }
 }
