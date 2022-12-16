@@ -2,8 +2,9 @@
 몽고 db 를 연습할 수 있게 테스트케이스를 만들면 다른 사람들이 사용하지 않을까?
 
 <h2>테스트 코드 설정</h2>
+<div style="display:none">
 <h4>@DataJpaTest</h4>
-<div>
+<div >
 - JPA 관련된 설정만 로드한다. (WebMVC와 관련된 Bean이나 기능은 로드되지 않는다)
 <br/>
 <br/>
@@ -25,3 +26,4 @@
 <br/>
 </div>
 <i>출처 : https://jiminidaddy.github.io/dev/2021/05/20/dev-spring-%EB%8B%A8%EC%9C%84%ED%85%8C%EC%8A%A4%ED%8A%B8-Repository/ </i>
+</div>

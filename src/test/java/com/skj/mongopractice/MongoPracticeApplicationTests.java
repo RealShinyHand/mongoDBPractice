@@ -1,31 +1,19 @@
 package com.skj.mongopractice;
 
 import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 import com.skj.mongopractice.domain.Simple;
-import com.skj.mongopractice.dto.ProfessorDto;
-import com.skj.mongopractice.service.ProfessorService;
 import com.skj.mongopractice.service.SimpleServiceImpl;
-import com.skj.mongopractice.service.StudentService;
-import com.skj.mongopractice.service.SubjectService;
-import org.bson.Document;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.test.context.event.annotation.BeforeTestMethod;
 
-import java.sql.Time;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,6 +23,7 @@ import java.util.regex.Pattern;
  * @author RealShinyHand
  */
 @SpringBootTest
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class MongoPracticeApplicationTests {
 
 	Logger log = LoggerFactory.getLogger(MongoPracticeApplicationTests.class);
@@ -78,8 +67,10 @@ class MongoPracticeApplicationTests {
 
 
 
+
 	@Test
 	@DisplayName("1.[SELECT-기초] 존재하는 모든 Simple 조회 : simples collection 하위 모든 도큐먼트 조회")
+	@Order(3)
 	void givenEmptyWhenFindAllThenSuccess(){
 		log.info("[SELECT-기초] 존재하는 모든 Simple 조회 : simples collection 하위 모든 도큐먼트 조회");
 		//given
@@ -90,6 +81,7 @@ class MongoPracticeApplicationTests {
 	}
 
 	@Test
+	@Order(4)
 	@DisplayName("2-1.[SELECT-기초] title이 일치하는 Simple 한건 조회 : 성공 시나리오")
 	void givenTitleWhenFindByTitleThenSuccess(){
 		log.info("[SELECT-기초] title이 일치하는 Simple 한건 조회");
@@ -104,6 +96,7 @@ class MongoPracticeApplicationTests {
 	}
 
 	@Test
+	@Order(5)
 	@DisplayName("2-2.[SELECT-기초] title이 일치하는 Simple 한건 조회 : 실패 시나리오")
 	void givenNotExistTitleWhenFindByTitleThenReturnNull(){
 		log.info("[SELECT-기초] title이 일치하는 Simple 한건 조회 : 실패 시나리오");
@@ -117,6 +110,7 @@ class MongoPracticeApplicationTests {
 	}
 
 	@Test
+	@Order(6)
 	@DisplayName("3.[SELECT-기초] 주어진 title 포함된  도큐머트 반환")
 	void givenTitleWhenFindByLikeTitleThenSuccess(){
 		log.info("[SELECT-기초] 주어진 title 포함된  도큐머트 반환");
@@ -137,6 +131,7 @@ class MongoPracticeApplicationTests {
 
 
 	@Test
+	@Order(7)
 	@DisplayName("4.[SELECT-기초] 주어진 date 보다 큰 도큐먼트만 반환 & date 내림차순 정렬")
 	void givenWhenFindWhereDateGtOrderByDateDescThenSuccess(){
 		//given
@@ -155,6 +150,7 @@ class MongoPracticeApplicationTests {
 
 	@Test
 	@DisplayName("5.전체 갯수 조회")
+	@Order(8)
 	void givenWhenGetCountThenSuccess(){
 		int count = simpleService.getToalCount();
 
@@ -163,12 +159,13 @@ class MongoPracticeApplicationTests {
 
 	@Test
 	@DisplayName("6. 전체 타이틀 조회 (단, title,_id을 조회하시오..)")
+	@Order(9)
 	void givenWhenGetTitlesThenReturnTitles(){
 		List<Simple> simpleList = simpleService.getTitles();
 
 		for(Simple e : simpleList){
 			Assertions.assertNull(e.getDate());
-			//Assertions.assertNull(e.getId()); ??_id 필드는 include에 포함하지 않았는데...
+			Assertions.assertNull(e.getId());
 			Assertions.assertNull(e.getBody());
 			Assertions.assertNotNull(e.getTitle());
 		}
@@ -177,6 +174,7 @@ class MongoPracticeApplicationTests {
 
 	@Test
 	@DisplayName("7. date가 가장 큰 top 3개만 조회")
+	@Order(10)
 	void givenWhenfindLimitTop3ThenReturn3Record(){
 		List<Simple> simpleList = simpleService.findTop3();
 		Assertions.assertEquals(3,simpleList.size());
@@ -187,6 +185,7 @@ class MongoPracticeApplicationTests {
 	}
 	
 	@Test
+	@Order(11)
 	@DisplayName("8.페이징 처리, 페이지당 아이템 갯수 = 10개로 하여, 1~n 까지 페이징 처리하라,정렬은 날짜 내림차순 ")
 	void givenPagingIndex_whenFindWithPaging_thenReturnList(){
 

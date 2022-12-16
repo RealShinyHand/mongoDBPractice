@@ -64,7 +64,7 @@ public class SimpleServiceImpl {
 
     public List<Simple> getTitles() {
         Query query = new Query();
-        query.fields().include("title");
+        query.fields().include("title").exclude("_id");
         return mongoTemplate.find(query,Simple.class);
     }
 
