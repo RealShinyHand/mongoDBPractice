@@ -27,7 +27,7 @@ public class Student {
     // one to Squillions
     // 졸업하고 난후 지도교수가 계속 학적부에 저장되어 있음으로, 1: N 관계에서 one to many로 할 시,
     // professor 도큐먼트에 엄청난 배열이 생길것을 방지
-    @DocumentReference
+    @DocumentReference(lazy = false)
     @Field(write = Field.Write.ALWAYS)
     private Professor advisorProfessor;
 }

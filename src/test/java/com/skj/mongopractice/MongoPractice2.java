@@ -3,14 +3,14 @@ package com.skj.mongopractice;
 import com.skj.mongopractice.domain.Professor;
 import com.skj.mongopractice.domain.Student;
 import com.skj.mongopractice.domain.Subject;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import com.skj.mongopractice.dto.TempResultDto;
+import com.skj.mongopractice.service.StudentService;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
+
+import java.util.List;
 
 /**
  * Professor,Student,Subject 를 통한 연습
@@ -21,6 +21,9 @@ public class MongoPractice2 {
 
     @Autowired
     MongoTemplate mongoTemplate;
+
+    @Autowired
+    StudentService studentService;
 
 
     @Order(1)
@@ -39,9 +42,9 @@ public class MongoPractice2 {
 
         mongoTemplate.dropCollection(Professor.class);
         generateBasicFieldProfessor("001","나교수",1000);
-        generateBasicFieldProfessor("001","폰꺼이만",1000);
-        generateBasicFieldProfessor("001","컴터튜닝",1000);
-        generateBasicFieldProfessor("001","황의법칙",1000);
+        generateBasicFieldProfessor("002","폰꺼이만",2000);
+        generateBasicFieldProfessor("003","컴터튜닝",3000);
+        generateBasicFieldProfessor("004","황의법칙",4000);
 
         mongoTemplate.dropCollection(Subject.class);
         generateBasicFieldSubject("aaaaa","컴퓨터 구조",3);
@@ -55,7 +58,66 @@ public class MongoPractice2 {
 
 
     }
+    @Test
+    @Order(2)
+    @DisplayName("1. 관계 맺기 : 지도교수 부여하기 시나리오")
+    void givenPNameAndGrade_whenAdvisorUpdate_thenSuccess(){
+        //given
+        int grade = 1;
+        String pName="나교수";
+        //when
+        //1.학년(grade) == grade인 학생에게 pName에 일치하는 지도교수를 부여하세요.
+        studentService.updateAdvisor(grade,pName);
+        //2.pName이 일치하는 교수의 지도학생들 리스트를 반환하시오.
+        List<Student> studentList = studentService.findByAdvisorStudent(pName);
+        Assertions.assertEquals(3,studentList.size());
 
+        studentService.updateAdvisor(2,"폰꺼이만");
+        studentService.updateAdvisor(3,"컴터튜닝");
+        studentService.updateAdvisor(4,"황의법칙");
+    }
+
+    @Test
+    @Order(3)
+    @DisplayName("2. group count : 지도 교수가 몇명의 학생을 지도하는 지 출력,")
+    void givenNoting_when_then(){
+        //단순히 Aggregation 사용을 위한 Test Case 입니다.
+        //프로페서,스튜던트를 lookup을 사용해 조인시키고, 프로페서 id를 통해 grouping하여 count를 구하고, count 순으로 정렬하여 반환하세요
+        List<TempResultDto> professorDtoList = (List<TempResultDto>) studentService.findAllProfessorWithAdviseStudentCount();
+
+        Assertions.assertEquals(3,professorDtoList.size());
+
+        Assertions.assertEquals(1,professorDtoList.get(0).getCount());
+
+        Assertions.assertEquals(3,professorDtoList.get(1).getCount());
+
+        Assertions.assertEquals(4,professorDtoList.get(2).getCount());
+
+        System.out.println(professorDtoList);
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("3.lazyLoding 을 적용해보세요. Student Class의 advisorProfessor필드의 @DocumentRef(lazy= true)로 변경")
+    void given_when_thenReturnStudentList(){
+        List<Student> studentList = studentService.findAll();
+        Assertions.assertEquals(8,studentList.size());
+        Assertions.assertNotEquals(Professor.class.getName(),studentList.get(0).getAdvisorProfessor().getClass().getName());
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("4.단일 컬렉션 특정 필드 sum  연습: 교수들의 총 salary 를 반환하세요.")
+    void given_when_thenReturnTotalSalary(){
+       int totalSalary =  studentService.getTotalSalary();
+       Assertions.assertEquals(10000,totalSalary);
+    }
+
+    //======================
+
+    @Test
+    @Order(6)
+    @DisplayName("")
     private  void generateBasicFieldSubject(String id,String name,int point){
         Subject subject = new Subject();
         subject.setSName(name);
@@ -70,7 +132,6 @@ public class MongoPractice2 {
         professor.setSalary(salary);
         mongoTemplate.insert(professor);
     }
-
     private void generateBasicFieldStudent(String s, int i, String name) {
         Student student = new Student();
         student.setStudentId(s);
