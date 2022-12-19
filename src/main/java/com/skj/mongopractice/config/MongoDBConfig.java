@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 
@@ -28,4 +29,8 @@ public class MongoDBConfig {
         return new MongoTemplate(mongoClient,database);
     }
 
+    @Bean
+    public MongoTransactionManager transactionManager (MongoClient mongoClient){
+        return new MongoTransactionManager(mongoClient);
+    }
 }

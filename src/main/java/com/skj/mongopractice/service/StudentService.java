@@ -14,4 +14,6 @@ public interface StudentService {
     List<Student> findAll();
 
     int getTotalSalary();
+
+    void addProfessorSalary(String s, int i);
 }
