@@ -158,6 +158,16 @@ public class MongoPractice2 {
 
     }
 
+    @Test
+    @Order(7)
+    @DisplayName("mapreduce 사용해보기: Subeject 모든 필드에서 가장 많이 나오는 음절을 탐색해보자. 예시 '고기고' 라면 고:2, 기: 1 이다. (단순 음절 카운트)")
+    void mapreduce_test(){
+        //하둡 공부하면서 몽고 db에 mapreduce 지원하는 것을 보게되었다. 그래서 함 그냥 사용해보고 싶었다.
+        // 순수 자바 코드 적으면 변환되서 가는 줄 알았는데.... javascript 코드가 보인다...
+        //mongoTemplate.mapReduce(Subject.class).map("asdf").reduce("asdf");
+        //안할 꺼임 나중에 apache Flink 할꺼다.
+    }
+
     private void generateBasicFieldSubject(String id, String name, int point) {
         Subject subject = new Subject();
         subject.setSName(name);
