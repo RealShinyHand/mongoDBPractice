@@ -30,7 +30,7 @@ public class MongoDBConfig {
     }
 
     @Bean
-    public MongoTransactionManager transactionManager (MongoClient mongoClient){
-        return new MongoTransactionManager(mongoClient);
+    public MongoTransactionManager transactionManager (MongoTemplate mongoTemplate){
+        return new MongoTransactionManager(mongoTemplate.getMongoDatabaseFactory());
     }
 }

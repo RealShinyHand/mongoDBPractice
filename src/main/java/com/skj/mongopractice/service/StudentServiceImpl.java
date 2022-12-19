@@ -106,10 +106,25 @@ public class StudentServiceImpl implements StudentService{
         //몽고 db가 writeConflict를 알아서 처리하긴 하나 , 각각의 트랜잭션(조회, 조회값을 통한 업데이트) 임으로
         //몇몇 오퍼가 에러남
         //====================================위 코드는 동시성 제어가 되어 있지 않다.
-        ClientSession session = ClientSessionOptions.builder()
-                .
-        mongoTemplate.set
+        //계속 찾아봤는데 pessimistic locking이 존재하지 않는 것 같다. session 이나 transaction 만 나온다...
+        //그래서 optimistic lock을 사용할꺼다. 근데 version 추가하지 말고 한번 직접 구현해보자.
+        Query query = new Query();
+        query.addCriteria(Criteria.where("pId").is(pId));
 
+        Professor professor = mongoTemplate.findOne(query,Professor.class); //null은 신경쓰지 말자... 익셉션 만들기 시간걸린다.
+        int result = professor.getSalary() + addedSalary;
+        //professor.setSalary(Integer.valueOf(result)); //save로 할 경우
+
+        query = Query.query(Criteria.where("pId").is(pId).and("salary").is(professor.getSalary()));
+        Update update = Update.update("salary",result);
+        UpdateResult updateResult = mongoTemplate.updateFirst(query,update,Professor.class);
+        long matchCount = updateResult.getMatchedCount();
+        if(matchCount == 0){
+            //사실 이렇게 했지만 이러면 안된다. 익셉션을 던지거나 false를 던져 while문 안에서 성공 시 break 를 걸든 해야한다.
+            //1000000000 의 요청시 결국 1개씩 성공되니깐 재귀함수 stack이 엄청나게 쌓이게 될것이다.
+            //하지만 그냥 쓰겠다.
+            addProfessorSalary(pId,addedSalary);
+        }
     }
 
 }
